@@ -6,6 +6,7 @@ def solve(x):
             return True
     return False
 
+
 t = int(input())
 for _ in range(t):
     x = int(input())
