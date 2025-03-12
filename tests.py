@@ -1,76 +1,72 @@
-import sys
-
-def can_partition(s, a, b, ab, ba):
-    blocks = []
-    i, n = 0, len(s)
-
-    while i < n:
-        j = i
-        while j < n and s[j] == s[i]:
-            j += 1
-        blocks.append(s[i:j])
-        i = j
-
-    single_a = 0
-    single_b = 0
-    ab_pairs = []
-    ba_pairs = []
-
-    for i in range(len(blocks) - 1):
-        if blocks[i] == "A" and blocks[i + 1] == "B":
-            ab_pairs.append(len(blocks[i]) + len(blocks[i + 1]))
-        elif blocks[i] == "B" and blocks[i + 1] == "A":
-            ba_pairs.append(len(blocks[i]) + len(blocks[i + 1]))
-
-    for block in blocks:
-        if block == "A":
-            single_a += len(block)
-        elif block == "B":
-            single_b += len(block)
-
-    if single_a > a or single_b > b:
-        return "NO"
-
-    ab_pairs.sort()
-    ba_pairs.sort()
-
-    ab_used = 0
-    ba_used = 0
-
-    for length in ab_pairs:
-        if ab_used < ab:
-            ab_used += 1
-        else:
-            break
-
-    for length in ba_pairs:
-        if ba_used < ba:
-            ba_used += 1
-        else:
-            break
-
-    if ab_used > ab or ba_used > ba:
-        return "NO"
-
-    return "YES"
+# def starting(n, strands):
+#     length = len(strands[0])
+#     result = []
+#
+#     for i in range(length):
+#         nucleotides = [s[i] for s in strands if s[i] != '.']
+#
+#         if nucleotides:
+#             result.append(nucleotides[0])
+#         else:
+#             result.append('.')
+#
+#     return ''.join(result)
+#
+# n = int(input())
+# strands = [input().strip() for _ in range(n)]
+# output = starting(n, strands)
+# print(output)
 
 
-def main():
-    input = sys.stdin.read
-    data = input().split("\n")
+# def find_species(n, species_list):
+#     for candidate in species_list:
+#         is_ancestor = True
+#         for other_species in species_list:
+#             if not other_species.endswith(candidate):
+#                 is_ancestor = False
+#                 break
+#         if is_ancestor:
+#             return candidate
+#     return "Not found"
+#
+# n = int(input())
+# species_list = [input().strip() for _ in range(n)]
+# result = find_species(n, species_list)
+# print(result)
 
-    t = int(data[0])
-    index = 1
-    results = []
 
-    for _ in range(t):
-        s = data[index].strip()
-        a, b, ab, ba = map(int, data[index + 1].split())
-        results.append(can_partition(s, a, b, ab, ba))
-        index += 2
+def max_research_value(n, m, items):
+    # Initialize DP table
+    dp = [[0] * (m + 1) for _ in range(n + 1)]
 
-    sys.stdout.write("\n".join(results) + "\n")
+    # Fill DP table
+    for i in range(1, n + 1):
+        w, v = items[i - 1]
+        for j in range(m + 1):
+            if j >= w:
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w] + v)
+            else:
+                dp[i][j] = dp[i - 1][j]
 
+    # Scenario 1: Special hold is used
+    max_value = dp[n][m]
 
-if __name__ == "__main__":
-    main()
+    # Scenario 2: Special hold is used for one item
+    for i in range(n):
+        w, v = items[i]
+        # Remove the current item from the regular cargo hold
+        # and add it to the special hold
+        remaining_capacity = m
+        # Calculate the value without the current item in the regular hold
+        value_without_current = dp[n][remaining_capacity]
+        # Add the value of the current item in the special hold
+        total_value = value_without_current + v
+        if total_value > max_value:
+            max_value = total_value
+
+    return max_value
+
+n, m = 6, 10
+items = [(2, 2), (2, 2), (2, 2), (3, 1), (3, 1), (6, 3)]
+print(max_research_value(n, m, items))
+
